@@ -1,0 +1,19 @@
+[project]
+name = "machinelearning-melissa"
+version = "0.1.0"
+description = "MADS-Machinelearning-course"
+authors = [{ name = "Melissa", email = "" }]
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "jupyter",
+    "lefthook>=1.11.11",
+]
+
+[tool.uv]
+# Optioneel

@@ -1,0 +1,11 @@
+pre-commit:
+  parallel: true
+  commands:
+    black:
+      run: black .
+    isort:
+      run: isort .
+    flake8:
+      run: flake8 .
+    nbstripout:
+      run: nbstripout notebooks/**/*.ipynb
