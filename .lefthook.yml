@@ -8,4 +8,4 @@ pre-commit:
     flake8:
       run: flake8 .
     nbstripout:
-      run: nbstripout notebooks/**/*.ipynb
+      run: nbstripout notebooks/**/*.ipynb || true

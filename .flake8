@@ -1,0 +1,3 @@
+[flake8]
+exclude = .venv, data, models, reports, references, presentations, __pycache__
+max-line-length = 88
