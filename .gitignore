@@ -1,2 +1,29 @@
-.venv
-/notebooks/modellogs
+# Python cache
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# VSCode settings
+.vscode/
+
+# MyPy en Ruff cache
+.mypy_cache/
+.ruff_cache/
+
+# Linter en formatter instellingen
+*.log
+
+# LeftHook cache of build files
+.lefthook/
+
+# Model logs
+notebooks/modellogs
