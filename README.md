@@ -6,3 +6,4 @@ activate environment
 
 source .venv/bin/activate
 
+tensorboard --logdir=modellogs
