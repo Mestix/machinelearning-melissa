@@ -2,9 +2,9 @@ pre-commit:
   parallel: true
   commands:
     black:
-      run: black models/ notebooks/
+      run: black dev/ models/ notebooks/
     ruff:
-      run: ruff check models/ notebooks/ --fix
+      run: ruff check dev/ models/ notebooks/ --fix
     mypy:
       run: mypy models/ dev/
     nbstripout:
