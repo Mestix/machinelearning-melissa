@@ -6,6 +6,6 @@ pre-commit:
     ruff:
       run: ruff check models/ notebooks/ --fix
     mypy:
-      run: mypy models/
+      run: mypy models/ dev/
     nbstripout:
-      run: nbstripout notebooks/**/*.ipynb || true
+      run: nbstripout notebooks/*.ipynb || true
