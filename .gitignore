@@ -18,7 +18,7 @@ venv/
 # MyPy en Ruff cache
 .mypy_cache/
 .ruff_cache/
-mypy.ini
+/mypy.ini
 
 # Linter en formatter instellingen
 *.log

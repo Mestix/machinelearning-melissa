@@ -1,0 +1,11 @@
+pre-commit:
+  parallel: true
+  commands:
+    notebook-clean:
+      run: nbstripout /notebooks/*ipynb
+    black:
+      run: black models/ dev/
+    ruff:
+      run: ruff check models/ dev/ --fix
+    mypy:
+      run: mypy models/ dev/
