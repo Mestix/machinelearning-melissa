@@ -2,10 +2,10 @@ pre-commit:
   parallel: true
   commands:
     black:
-      run: black .
-    isort:
-      run: isort .
-    flake8:
-      run: flake8 .
+      run: black models/ notebooks/
+    ruff:
+      run: ruff check models/ notebooks/ --fix
+    mypy:
+      run: mypy models/
     nbstripout:
       run: nbstripout notebooks/**/*.ipynb || true
