@@ -40,3 +40,22 @@ class DeepNeuralNetwork(nn.Module):
         x = self.flatten(x)
         logits = self.linear_relu_stack(x)
         return logits
+    
+class NeuralNetworkWithDropout(nn.Module):
+    def __init__(self, num_classes: int, units1: int, units2: int) -> None:
+        super().__init__()
+        self.flatten = nn.Flatten()
+
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(28 * 28, units1),
+            nn.ReLU(),
+            nn.Linear(units1, units2),
+            nn.ReLU(),
+            # nn.Dropout(p=0.1),
+            nn.Linear(units2, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.flatten(x)
+        logits = self.linear_relu_stack(x)
+        return logits
