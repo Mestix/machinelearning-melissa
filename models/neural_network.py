@@ -40,7 +40,8 @@ class DeepNeuralNetwork(nn.Module):
         x = self.flatten(x)
         logits = self.linear_relu_stack(x)
         return logits
-    
+
+
 class NeuralNetworkWithDropout(nn.Module):
     def __init__(self, num_classes: int, units1: int, units2: int) -> None:
         super().__init__()
