@@ -27,6 +27,13 @@ venv/
 .lefthook/
 
 # Model logs
+notebooks/modellog
 notebooks/modellogs
 notebooks/mlruns
 notebooks/models
+
+# mlflow
+notebooks/mlflow.db
+
+# logs
+*.toml
