@@ -31,9 +31,12 @@ notebooks/modellog
 notebooks/modellogs
 notebooks/mlruns
 notebooks/models
+notebooks/gestures
 
 # mlflow
 notebooks/mlflow.db
+
+./mlflow.db
 
 # logs
 *.toml
