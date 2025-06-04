@@ -22,7 +22,7 @@ sys.path.append(os.path.abspath('./dev'))
 # Import models
 from networks.CNN import CNN
 from NN import NeuralNetwork, DeepNeuralNetwork
-from networks.RNN import GRUmodel, ModelConfig
+from networks.RNN import RecurrentNeuralNetworkWithGRU, ModelConfig
 
 # Import dataset and training utilities
 from mads_datasets import DatasetFactoryProvider, DatasetType
@@ -85,7 +85,7 @@ def create_gru_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, ou
     """
     # Optimal hyperparameters from les3.ipynb
     config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
-    return GRUmodel(config=config)
+    return RecurrentNeuralNetworkWithGRU(config=config)
 
 
 def load_fashion_dataset(batch_size=32):
