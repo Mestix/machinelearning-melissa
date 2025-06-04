@@ -1,4 +1,4 @@
-# Machine Learning Models with Optimal Hyperparameters
+# Hypertuning Machine Learning Models
 
 This repository contains implementations of various machine learning models (NN, CNN, DNN, RNN) with optimal hyperparameters determined through experimentation. The project is structured to provide a clean interface for training and evaluating these models.
 
