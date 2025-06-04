@@ -148,6 +148,3 @@ To extend this project with new models or datasets:
 - PyTorch
 - Additional dependencies as specified in the project
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
