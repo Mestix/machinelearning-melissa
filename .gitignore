@@ -38,10 +38,10 @@ logs/
 # mlflow
 notebooks/mlflow.db
 
-./mlflow.db
+/notebooks/mlflow.db
 
 # logs
 *.toml
 
 # Models
-saved_models
+/saved_models

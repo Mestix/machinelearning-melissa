@@ -12,10 +12,10 @@ This repository contains implementations of various machine learning models (CNN
 │   └── raw/               # Raw data
 ├── dev/                   # Development utilities
 ├── img/                   # Images and visualizations
-├── models/                # Model implementations
+├── networks/              # Model implementations
 │   ├── CNN.py             # Convolutional Neural Network
-│   ├── DNN.py             # Dense Neural Networks
-│   └── RNN.py             # Recurrent Neural Network (GRU)
+│   ├── NN.py              # Dense Neural Networks
+│   └── RNN.py             # Recurrent Neural Network implementations
 ├── notebooks/             # Jupyter notebooks for experimentation
 ├── presentations/         # Presentation materials
 ├── references/            # Reference materials
@@ -32,43 +32,66 @@ This repository contains implementations of various machine learning models (CNN
 The CNN model is designed for image classification tasks, particularly for the Fashion MNIST dataset.
 
 **Optimal Hyperparameters:**
-- Filters: 16
+- Filters: 32
 - Units: 128
-- Optimizer: Adam with learning rate 0.01
-- Epochs: 100
-- Scheduler: ReduceLROnPlateau with factor=0.5, patience=10
-- Early stopping: patience=100
+- Num classes: 10
+- Optimizer: Adam
+- Epochs: 10
+- Scheduler: ReduceLROnPlateau
+- Early stopping: patience=5
 
 ### DNN (Dense Neural Network)
 
 Two variants of DNN are implemented:
 
-1. **DenseNeuralNetwork** (2 hidden layers)
-   - Units1: 1024
-   - Units2: 512
+1. **NeuralNetwork** (2 hidden layers)
+   - Units1: 300
+   - Units2: 100
+   - Num classes: 10
    - Optimizer: Adam
-   - Epochs: 20
+   - Epochs: 10
    - Scheduler: ReduceLROnPlateau
 
 2. **DeepNeuralNetwork** (3 hidden layers)
-   - Units1: 1024
-   - Units2: 512
-   - Units3: 256
+   - Units1: 512
+   - Units2: 256
+   - Units3: 128
+   - Num classes: 10
    - Optimizer: Adam
-   - Epochs: 20
+   - Epochs: 10
    - Scheduler: ReduceLROnPlateau
 
 ### RNN (Recurrent Neural Network)
 
-The RNN model is a GRU-based implementation designed for sequence classification tasks, particularly for the Gestures dataset.
+Four RNN model variants are implemented for sequence classification tasks, particularly for the Gestures dataset:
 
-**Optimal Hyperparameters:**
-- Hidden size: 64
+1. **RecurrentNeuralNetworkWithGRU** (GRU-based)
+   - Uses Gated Recurrent Unit cells
+   - Layer normalization after RNN layer
+
+2. **RecurrentNeuralNetwork** (Basic RNN)
+   - Uses basic RNN cells with tanh nonlinearity
+   - Layer normalization after RNN layer
+
+3. **GRUWithAttention** (GRU with Attention)
+   - Uses Gated Recurrent Unit cells
+   - Includes an attention mechanism to focus on important time steps
+   - Layer normalization after RNN layer
+
+4. **RecurrentNeuralNetworkWithAttention** (RNN with Attention)
+   - Uses basic RNN cells with tanh nonlinearity
+   - Includes an attention mechanism to focus on important time steps
+   - Layer normalization after RNN layer
+
+**Optimal Hyperparameters for all RNN models:**
+- Input size: 3
+- Hidden size: 128
 - Number of layers: 2
 - Dropout: 0.4
+- Output size: 20
 - Optimizer: Adam
 - Epochs: 10
-- Scheduler: ReduceLROnPlateau with factor=0.5, patience=5
+- Scheduler: ReduceLROnPlateau
 - Early stopping: patience=5
 
 ## Usage
@@ -77,7 +100,7 @@ The `main.py` script provides a unified interface for training the different mod
 
 ### Command-line Arguments
 
-- `--model`: Type of model to train (cnn, dnn, deep_dnn, or gru)
+- `--model`: Type of model to train (cnn, dnn, nn, rnn_gru, rnn_basic, gru_attention, or rnn_attention)
 - `--epochs`: Number of training epochs (default: model-specific)
 - `--batch-size`: Batch size for data loading (default: 32)
 - `--no-save`: Do not save the trained model
@@ -94,21 +117,36 @@ Train a DNN model with 30 epochs:
 python main.py --model dnn --epochs 30
 ```
 
-Train a Deep DNN model with a batch size of 64:
+Train a Deep Neural Network model with a batch size of 64:
 ```bash
-python main.py --model deep_dnn --batch-size 64
+python main.py --model nn --batch-size 64
 ```
 
 Train a GRU model without saving:
 ```bash
-python main.py --model gru --no-save
+python main.py --model rnn_gru --no-save
+```
+
+Train a basic RNN model:
+```bash
+python main.py --model rnn_basic
+```
+
+Train a GRU model with attention:
+```bash
+python main.py --model gru_attention
+```
+
+Train an RNN model with attention:
+```bash
+python main.py --model rnn_attention
 ```
 
 ## Development
 
 To extend this project with new models or datasets:
 
-1. Add new model implementations in the `models/` directory
+1. Add new model implementations in the `networks/` directory
 2. Update the `main.py` script to include functions for creating and training the new models
 3. Determine optimal hyperparameters through experimentation in Jupyter notebooks
 

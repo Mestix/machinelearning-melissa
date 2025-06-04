@@ -22,7 +22,13 @@ sys.path.append(os.path.abspath('./dev'))
 # Import models
 from networks.CNN import CNN
 from NN import NeuralNetwork, DeepNeuralNetwork
-from networks.RNN import RecurrentNeuralNetworkWithGRU, ModelConfig
+from networks.RNN import (
+    RecurrentNeuralNetworkWithGRU, 
+    RecurrentNeuralNetwork, 
+    GRUWithAttention, 
+    RecurrentNeuralNetworkWithAttention, 
+    ModelConfig
+)
 
 # Import dataset and training utilities
 from mads_datasets import DatasetFactoryProvider, DatasetType
@@ -86,6 +92,51 @@ def create_gru_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, ou
     # Optimal hyperparameters from les3.ipynb
     config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
     return RecurrentNeuralNetworkWithGRU(config=config)
+
+
+def create_rnn_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, output_size=20):
+    """
+    Create a basic RNN model with optimal hyperparameters.
+    
+    Args:
+        input_size: Size of input features (default: 3 for Gestures dataset)
+        output_size: Number of output classes (default: 20 for Gestures dataset)
+        
+    Returns:
+        Configured RNN model
+    """
+    config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
+    return RecurrentNeuralNetwork(config=config)
+
+
+def create_gru_attention_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, output_size=20):
+    """
+    Create a GRU model with attention mechanism and optimal hyperparameters.
+    
+    Args:
+        input_size: Size of input features (default: 3 for Gestures dataset)
+        output_size: Number of output classes (default: 20 for Gestures dataset)
+        
+    Returns:
+        Configured GRU with Attention model
+    """
+    config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
+    return GRUWithAttention(config=config)
+
+
+def create_rnn_attention_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, output_size=20):
+    """
+    Create a RNN model with attention mechanism and optimal hyperparameters.
+    
+    Args:
+        input_size: Size of input features (default: 3 for Gestures dataset)
+        output_size: Number of output classes (default: 20 for Gestures dataset)
+        
+    Returns:
+        Configured RNN with Attention model
+    """
+    config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
+    return RecurrentNeuralNetworkWithAttention(config=config)
 
 
 def load_fashion_dataset(batch_size=32):
@@ -162,12 +213,8 @@ def create_trainer_settings(model_type, epochs=10, train_steps=100, valid_steps=
             earlystop_kwargs={
                 "save": True,
                 "verbose": True,
-                "patience": 100,
+                "patience": 5,
             },
-            scheduler_kwargs={
-                "factor": 0.5,
-                "patience": 10
-            }
         )
     elif model_type in ['dnn', 'nn']:
         # Settings from les1.ipynb
@@ -179,7 +226,7 @@ def create_trainer_settings(model_type, epochs=10, train_steps=100, valid_steps=
             valid_steps=valid_steps,
             reporttypes=[ReportTypes.TENSORBOARD, ReportTypes.TOML],
         )
-    elif model_type == 'rnn':
+    elif model_type in ['rnn_gru', 'rnn_basic', 'gru_attention', 'rnn_attention']:
         # Settings from les3.ipynb
         settings = TrainerSettings(
             epochs=epochs,
@@ -188,7 +235,6 @@ def create_trainer_settings(model_type, epochs=10, train_steps=100, valid_steps=
             train_steps=train_steps,
             valid_steps=valid_steps,
             reporttypes=[ReportTypes.TOML, ReportTypes.TENSORBOARD, ReportTypes.MLFLOW],
-            scheduler_kwargs={"factor": 0.5, "patience": 5},
             earlystop_kwargs={
                 "save": False,
                 "verbose": True,
@@ -221,13 +267,22 @@ def train_model(model_type, epochs=10, batch_size=32, save_model=True):
         model = create_cnn_model()
         train_loader, valid_loader, train_steps, valid_steps = load_fashion_dataset(batch_size)
     elif model_type == 'dnn':
-        model = create_neural_network()
-        train_loader, valid_loader, train_steps, valid_steps = load_fashion_dataset(batch_size)
-    elif model_type == 'nn':
         model = create_deep_neural_network()
         train_loader, valid_loader, train_steps, valid_steps = load_fashion_dataset(batch_size)
-    elif model_type == 'rnn':
+    elif model_type == 'nn':
+        model = create_neural_network()
+        train_loader, valid_loader, train_steps, valid_steps = load_fashion_dataset(batch_size)
+    elif model_type == 'rnn_gru':
         model = create_gru_model()
+        train_loader, valid_loader, train_steps, valid_steps = load_gestures_dataset(batch_size)
+    elif model_type == 'rnn_basic':
+        model = create_rnn_model()
+        train_loader, valid_loader, train_steps, valid_steps = load_gestures_dataset(batch_size)
+    elif model_type == 'gru_attention':
+        model = create_gru_attention_model()
+        train_loader, valid_loader, train_steps, valid_steps = load_gestures_dataset(batch_size)
+    elif model_type == 'rnn_attention':
+        model = create_rnn_attention_model()
         train_loader, valid_loader, train_steps, valid_steps = load_gestures_dataset(batch_size)
     else:
         raise ValueError(f"Unknown model type: {model_type}")
@@ -272,8 +327,10 @@ def main():
     Main function to parse arguments and train models.
     """
     parser = argparse.ArgumentParser(description='Train machine learning models with optimal hyperparameters.')
-    parser.add_argument('--model', type=str, choices=['cnn', 'dnn', 'nn', 'rnn'], required=True,
-                        help='Type of model to train (cnn, dnn, nn, or rnn)')
+    parser.add_argument('--model', type=str, 
+                        choices=['cnn', 'dnn', 'nn', 'rnn_gru', 'rnn_basic', 'gru_attention', 'rnn_attention'], 
+                        required=True,
+                        help='Type of model to train (cnn, dnn, nn, rnn_gru, rnn_basic, gru_attention, or rnn_attention)')
     parser.add_argument('--epochs', type=int, default=10,
                         help='Number of training epochs (default: 10)')
     parser.add_argument('--batch-size', type=int, default=32,

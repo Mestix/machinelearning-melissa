@@ -26,6 +26,7 @@ dependencies = [
     "hyperopt>=0.2.7",
     "toml>=0.10.2",
     "mltrainer>=0.1.129",
+    "ray>=2.46.0",
 ]
 
 [tool.uv]

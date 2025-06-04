@@ -4,12 +4,8 @@ structure = [
     "data/external",
     "data/processed",
     "data/raw",
-    "models",
+    "networks",
     "notebooks",
-    "presentations",
-    "references/codestyle",
-    "references/leerdoelen",
-    "reports/figures",
 ]
 
 files = ["README.md", ".gitignore", ".lefthook.yml", "pyproject.toml"]
