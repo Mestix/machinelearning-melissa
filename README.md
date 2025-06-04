@@ -6,10 +6,6 @@ This repository contains implementations of various machine learning models (NN,
 
 ```
 .
-├── data/                  # Data directory
-│   ├── external/          # External data sources
-│   ├── processed/         # Processed data ready for modeling
-│   └── raw/               # Raw data
 ├── dev/                   # Development utilities
 ├── img/                   # Images and visualizations
 ├── networks/              # Model implementations
@@ -17,10 +13,6 @@ This repository contains implementations of various machine learning models (NN,
 │   ├── NN.py              # Dense Neural Networks
 │   └── RNN.py             # Recurrent Neural Network implementations
 ├── notebooks/             # Jupyter notebooks for experimentation
-├── presentations/         # Presentation materials
-├── references/            # Reference materials
-├── reports/               # Generated reports
-│   └── figures/           # Figures for reports
 ├── main.py                # Main script for training models
 └── README.md              # This file
 ```
