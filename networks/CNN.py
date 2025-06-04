@@ -3,7 +3,14 @@ import torch.nn as nn
 
 
 class CNN(nn.Module):
-    def __init__(self, filters: int = 32, units: int = 128, input_size=(1, 1, 28, 28), dropout=0.1, num_classes=10):
+    def __init__(
+        self,
+        filters: int = 32,
+        units: int = 128,
+        input_size=(1, 1, 28, 28),
+        dropout=0.1,
+        num_classes=10,
+    ):
         super().__init__()
 
         self.conv = nn.Sequential(
