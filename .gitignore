@@ -32,6 +32,8 @@ notebooks/modellogs
 notebooks/mlruns
 notebooks/models
 notebooks/gestures
+mlruns/
+logs/
 
 # mlflow
 notebooks/mlflow.db
@@ -40,3 +42,6 @@ notebooks/mlflow.db
 
 # logs
 *.toml
+
+# Models
+saved_models

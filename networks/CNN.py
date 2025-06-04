@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class CNN(nn.Module):
-    def __init__(self, filters: int = 16, units: int = 64, input_size=(1, 1, 28, 28)):
+    def __init__(self, filters: int = 32, units: int = 128, input_size=(1, 1, 28, 28), dropout=0.1, num_classes=10):
         super().__init__()
 
         self.conv = nn.Sequential(
@@ -11,7 +11,7 @@ class CNN(nn.Module):
             nn.BatchNorm2d(filters),
             nn.ReLU(),
             nn.MaxPool2d(2),  # 14x14
-            nn.Dropout(0.1),
+            nn.Dropout(dropout),
         )
 
         # Automatisch outputdimensie bepalen
@@ -21,7 +21,7 @@ class CNN(nn.Module):
             self.flatten_dim = out.view(out.size(0), -1).shape[1]
 
         self.fc = nn.Sequential(
-            nn.Linear(self.flatten_dim, units), nn.ReLU(), nn.Linear(units, 10)
+            nn.Linear(self.flatten_dim, units), nn.ReLU(), nn.Linear(units, num_classes)
         )
 
     def forward(self, x):
