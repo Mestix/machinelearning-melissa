@@ -12,17 +12,18 @@ import torch.nn as nn
 class CNN(nn.Module):
     """
     Convolutional Neural Network for image classification.
-    
+
     This CNN architecture consists of a convolutional block followed by fully connected layers.
     The convolutional block includes Conv2D, BatchNorm, ReLU, MaxPooling, and Dropout layers.
     The network automatically determines the output dimensions of the convolutional block
     to properly size the input to the fully connected layers.
-    
+
     Attributes:
         conv (nn.Sequential): Convolutional block with Conv2D, BatchNorm, ReLU, MaxPool, and Dropout
         flatten_dim (int): Automatically calculated dimension after flattening conv output
         fc (nn.Sequential): Fully connected layers with ReLU activation
     """
+
     def __init__(
         self,
         filters: int = 32,
@@ -33,7 +34,7 @@ class CNN(nn.Module):
     ):
         """
         Initialize the CNN model.
-        
+
         Args:
             filters (int): Number of filters in the convolutional layer (default: 32)
             units (int): Number of units in the hidden dense layer (default: 128)
@@ -45,11 +46,13 @@ class CNN(nn.Module):
 
         # Convolutional block
         self.conv = nn.Sequential(
-            nn.Conv2d(1, filters, kernel_size=3, padding=1),  # Maintains 28x28 spatial dimensions
-            nn.BatchNorm2d(filters),                          # Normalizes activations for stable training
-            nn.ReLU(),                                        # Non-linear activation
-            nn.MaxPool2d(2),                                  # Reduces spatial dimensions to 14x14
-            nn.Dropout(dropout),                              # Prevents overfitting
+            nn.Conv2d(
+                1, filters, kernel_size=3, padding=1
+            ),  # Maintains 28x28 spatial dimensions
+            nn.BatchNorm2d(filters),  # Normalizes activations for stable training
+            nn.ReLU(),  # Non-linear activation
+            nn.MaxPool2d(2),  # Reduces spatial dimensions to 14x14
+            nn.Dropout(dropout),  # Prevents overfitting
         )
 
         # Automatically determine output dimension after convolution
@@ -61,20 +64,20 @@ class CNN(nn.Module):
         # Fully connected layers
         self.fc = nn.Sequential(
             nn.Linear(self.flatten_dim, units),  # Hidden layer
-            nn.ReLU(),                           # Non-linear activation
-            nn.Linear(units, num_classes)        # Output layer
+            nn.ReLU(),  # Non-linear activation
+            nn.Linear(units, num_classes),  # Output layer
         )
 
     def forward(self, x):
         """
         Forward pass through the network.
-        
+
         Args:
             x (torch.Tensor): Input tensor of shape [batch_size, 1, 28, 28]
-            
+
         Returns:
             torch.Tensor: Output tensor of shape [batch_size, num_classes]
         """
-        x = self.conv(x)                # Apply convolutional block
-        x = x.view(x.size(0), -1)       # Flatten the output
-        return self.fc(x)               # Apply fully connected layers
+        x = self.conv(x)  # Apply convolutional block
+        x = x.view(x.size(0), -1)  # Flatten the output
+        return self.fc(x)  # Apply fully connected layers
