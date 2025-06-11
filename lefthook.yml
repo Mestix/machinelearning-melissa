@@ -4,8 +4,8 @@ pre-commit:
     notebook-clean:
       run: nbstripout /notebooks/*ipynb
     black:
-      run: black networks/ dev/
+      run: black networks/ dev/ main.py
     ruff:
-      run: ruff check networks/ dev/ --fix
+      run: ruff check networks/ dev/ main.py --fix
     mypy:
-      run: mypy networks/ dev/
+      run: mypy networks/ dev/ main.py 

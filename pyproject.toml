@@ -27,6 +27,7 @@ dependencies = [
     "toml>=0.10.2",
     "mltrainer>=0.1.129",
     "ray>=2.46.0",
+    "types-toml>=0.10.8.20240310",
 ]
 
 [tool.uv]
