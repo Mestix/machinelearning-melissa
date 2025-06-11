@@ -3,6 +3,8 @@
 Main script for training machine learning models with optimal hyperparameters.
 This script provides a unified interface for training different model types
 (CNN, DNN, RNN) with their optimal hyperparameters.
+
+Configuration is loaded from config.toml file, which can be overridden by command-line arguments.
 """
 
 import os
@@ -11,6 +13,7 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
+import toml
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -18,6 +21,31 @@ import torch.nn as nn
 # Add models and dev directories to path
 sys.path.append(os.path.abspath('./networks'))
 sys.path.append(os.path.abspath('./dev'))
+
+# Load configuration from config.toml
+def load_config(config_path="config.toml"):
+    """
+    Load configuration from a TOML file.
+    
+    Args:
+        config_path: Path to the configuration file (default: config.toml)
+        
+    Returns:
+        Configuration dictionary
+    """
+    try:
+        config = toml.load(config_path)
+        print(f"Configuration loaded from {config_path}")
+        return config
+    except FileNotFoundError:
+        print(f"Configuration file {config_path} not found. Using default values.")
+        return {}
+    except Exception as e:
+        print(f"Error loading configuration: {e}")
+        return {}
+
+# Global configuration
+CONFIG = load_config()
 
 # Import models
 from networks.CNN import CNN
@@ -36,110 +64,199 @@ from mltrainer.preprocessors import BasePreprocessor, PaddedPreprocessor
 from mltrainer import Trainer, TrainerSettings, ReportTypes, metrics
 
 
-def create_cnn_model(filters=32, units=128, num_classes=10):
+def create_cnn_model(filters=None, units=None, num_classes=None):
     """
     Create a CNN model with optimal hyperparameters.
     
     Args:
-        num_classes: Number of output classes (default: 10 for Fashion MNIST)
+        filters: Number of filters in convolutional layers
+        units: Number of units in dense layer
+        num_classes: Number of output classes
         
     Returns:
         Configured CNN model
     """
-    # Optimal hyperparameters from les2.ipynb
+    # Get parameters from config or use defaults
+    if filters is None:
+        filters = CONFIG.get("models", {}).get("cnn", {}).get("filters", 32)
+    if units is None:
+        units = CONFIG.get("models", {}).get("cnn", {}).get("units", 128)
+    if num_classes is None:
+        num_classes = CONFIG.get("models", {}).get("cnn", {}).get("num_classes", 10)
+    
     return CNN(filters=filters, units=units, num_classes=num_classes)
 
 
-def create_neural_network(num_classes=10, units1=300, units2=100):
+def create_neural_network(num_classes=None, units1=None, units2=None):
     """
     Create a DenseNeuralNetwork model with optimal hyperparameters.
     
     Args:
-        num_classes: Number of output classes (default: 10 for Fashion MNIST)
+        num_classes: Number of output classes
+        units1: Number of units in first dense layer
+        units2: Number of units in second dense layer
         
     Returns:
         Configured DenseNeuralNetwork model
     """
-    # Optimal hyperparameters from les1.ipynb
+    # Get parameters from config or use defaults
+    if num_classes is None:
+        num_classes = CONFIG.get("models", {}).get("nn", {}).get("num_classes", 10)
+    if units1 is None:
+        units1 = CONFIG.get("models", {}).get("nn", {}).get("units1", 300)
+    if units2 is None:
+        units2 = CONFIG.get("models", {}).get("nn", {}).get("units2", 100)
+    
     return NeuralNetwork(num_classes=num_classes, units1=units1, units2=units2)
 
 
-def create_deep_neural_network(num_classes=10, units1=512, units2=256, units3=128):
+def create_deep_neural_network(num_classes=None, units1=None, units2=None, units3=None):
     """
     Create a DeepNeuralNetwork model with optimal hyperparameters.
     
     Args:
-        num_classes: Number of output classes (default: 10 for Fashion MNIST)
+        num_classes: Number of output classes
+        units1: Number of units in first dense layer
+        units2: Number of units in second dense layer
+        units3: Number of units in third dense layer
         
     Returns:
         Configured DeepNeuralNetwork model
     """
-    # Optimal hyperparameters from les1.ipynb
+    # Get parameters from config or use defaults
+    if num_classes is None:
+        num_classes = CONFIG.get("models", {}).get("dnn", {}).get("num_classes", 10)
+    if units1 is None:
+        units1 = CONFIG.get("models", {}).get("dnn", {}).get("units1", 512)
+    if units2 is None:
+        units2 = CONFIG.get("models", {}).get("dnn", {}).get("units2", 256)
+    if units3 is None:
+        units3 = CONFIG.get("models", {}).get("dnn", {}).get("units3", 128)
+    
     return DeepNeuralNetwork(num_classes=num_classes, units1=units1, units2=units2, units3=units3)
 
 
-def create_gru_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, output_size=20):
+def create_gru_model(input_size=None, hiddensize=None, num_layers=None, dropout=None, output_size=None):
     """
     Create a GRU model with optimal hyperparameters.
     
     Args:
-        input_size: Size of input features (default: 3 for Gestures dataset)
-        output_size: Number of output classes (default: 20 for Gestures dataset)
+        input_size: Size of input features
+        hiddensize: Size of hidden layer
+        num_layers: Number of recurrent layers
+        dropout: Dropout rate
+        output_size: Number of output classes
         
     Returns:
         Configured GRU model
     """
-    # Optimal hyperparameters from les3.ipynb
+    # Get parameters from config or use defaults
+    if input_size is None:
+        input_size = CONFIG.get("models", {}).get("rnn", {}).get("input_size", 3)
+    if hiddensize is None:
+        hiddensize = CONFIG.get("models", {}).get("rnn", {}).get("hidden_size", 128)
+    if num_layers is None:
+        num_layers = CONFIG.get("models", {}).get("rnn", {}).get("num_layers", 2)
+    if dropout is None:
+        dropout = CONFIG.get("models", {}).get("rnn", {}).get("dropout", 0.4)
+    if output_size is None:
+        output_size = CONFIG.get("models", {}).get("rnn", {}).get("output_size", 20)
+    
     config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
     return RecurrentNeuralNetworkWithGRU(config=config)
 
 
-def create_rnn_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, output_size=20):
+def create_rnn_model(input_size=None, hiddensize=None, num_layers=None, dropout=None, output_size=None):
     """
     Create a basic RNN model with optimal hyperparameters.
     
     Args:
-        input_size: Size of input features (default: 3 for Gestures dataset)
-        output_size: Number of output classes (default: 20 for Gestures dataset)
+        input_size: Size of input features
+        hiddensize: Size of hidden layer
+        num_layers: Number of recurrent layers
+        dropout: Dropout rate
+        output_size: Number of output classes
         
     Returns:
         Configured RNN model
     """
+    # Get parameters from config or use defaults
+    if input_size is None:
+        input_size = CONFIG.get("models", {}).get("rnn", {}).get("input_size", 3)
+    if hiddensize is None:
+        hiddensize = CONFIG.get("models", {}).get("rnn", {}).get("hidden_size", 128)
+    if num_layers is None:
+        num_layers = CONFIG.get("models", {}).get("rnn", {}).get("num_layers", 2)
+    if dropout is None:
+        dropout = CONFIG.get("models", {}).get("rnn", {}).get("dropout", 0.4)
+    if output_size is None:
+        output_size = CONFIG.get("models", {}).get("rnn", {}).get("output_size", 20)
+    
     config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
     return RecurrentNeuralNetwork(config=config)
 
 
-def create_gru_attention_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, output_size=20):
+def create_gru_attention_model(input_size=None, hiddensize=None, num_layers=None, dropout=None, output_size=None):
     """
     Create a GRU model with attention mechanism and optimal hyperparameters.
     
     Args:
-        input_size: Size of input features (default: 3 for Gestures dataset)
-        output_size: Number of output classes (default: 20 for Gestures dataset)
+        input_size: Size of input features
+        hiddensize: Size of hidden layer
+        num_layers: Number of recurrent layers
+        dropout: Dropout rate
+        output_size: Number of output classes
         
     Returns:
         Configured GRU with Attention model
     """
+    # Get parameters from config or use defaults
+    if input_size is None:
+        input_size = CONFIG.get("models", {}).get("rnn", {}).get("input_size", 3)
+    if hiddensize is None:
+        hiddensize = CONFIG.get("models", {}).get("rnn", {}).get("hidden_size", 128)
+    if num_layers is None:
+        num_layers = CONFIG.get("models", {}).get("rnn", {}).get("num_layers", 2)
+    if dropout is None:
+        dropout = CONFIG.get("models", {}).get("rnn", {}).get("dropout", 0.4)
+    if output_size is None:
+        output_size = CONFIG.get("models", {}).get("rnn", {}).get("output_size", 20)
+    
     config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
     return GRUWithAttention(config=config)
 
 
-def create_rnn_attention_model(input_size=3, hiddensize=128, num_layers=2, dropout=0.4, output_size=20):
+def create_rnn_attention_model(input_size=None, hiddensize=None, num_layers=None, dropout=None, output_size=None):
     """
     Create a RNN model with attention mechanism and optimal hyperparameters.
     
     Args:
-        input_size: Size of input features (default: 3 for Gestures dataset)
-        output_size: Number of output classes (default: 20 for Gestures dataset)
+        input_size: Size of input features
+        hiddensize: Size of hidden layer
+        num_layers: Number of recurrent layers
+        dropout: Dropout rate
+        output_size: Number of output classes
         
     Returns:
         Configured RNN with Attention model
     """
+    # Get parameters from config or use defaults
+    if input_size is None:
+        input_size = CONFIG.get("models", {}).get("rnn", {}).get("input_size", 3)
+    if hiddensize is None:
+        hiddensize = CONFIG.get("models", {}).get("rnn", {}).get("hidden_size", 128)
+    if num_layers is None:
+        num_layers = CONFIG.get("models", {}).get("rnn", {}).get("num_layers", 2)
+    if dropout is None:
+        dropout = CONFIG.get("models", {}).get("rnn", {}).get("dropout", 0.4)
+    if output_size is None:
+        output_size = CONFIG.get("models", {}).get("rnn", {}).get("output_size", 20)
+    
     config = ModelConfig(input_size, hiddensize, num_layers, output_size, dropout)
     return RecurrentNeuralNetworkWithAttention(config=config)
 
 
-def load_fashion_dataset(batch_size=32):
+def load_fashion_dataset(batch_size=None):
     """
     Load the Fashion MNIST dataset.
     
@@ -149,6 +266,10 @@ def load_fashion_dataset(batch_size=32):
     Returns:
         Training and validation data streamers
     """
+    # Get batch size from config or use default
+    if batch_size is None:
+        batch_size = CONFIG.get("datasets", {}).get("fashion", {}).get("batch_size", 32)
+    
     factory = DatasetFactoryProvider.create_factory(DatasetType.FASHION)
     preprocessor = BasePreprocessor()
     
@@ -158,8 +279,7 @@ def load_fashion_dataset(batch_size=32):
     
     return train.stream(), valid.stream(), len(train), len(valid)
 
-
-def load_gestures_dataset(batch_size=32):
+def load_gestures_dataset(batch_size=None):
     """
     Load the Gestures dataset.
     
@@ -169,6 +289,10 @@ def load_gestures_dataset(batch_size=32):
     Returns:
         Training and validation data streamers
     """
+    # Get batch size from config or use default
+    if batch_size is None:
+        batch_size = CONFIG.get("datasets", {}).get("gestures", {}).get("batch_size", 32)
+    
     factory = DatasetFactoryProvider.create_factory(DatasetType.GESTURES)
     preprocessor = PaddedPreprocessor()
     
@@ -178,8 +302,7 @@ def load_gestures_dataset(batch_size=32):
     
     return train.stream(), valid.stream(), len(train), len(valid)
 
-
-def create_trainer_settings(model_type, epochs=10, train_steps=100, valid_steps=100):
+def create_trainer_settings(model_type, epochs=None, train_steps=None, valid_steps=None):
     """
     Create trainer settings with appropriate configuration for the model type.
     
@@ -192,54 +315,87 @@ def create_trainer_settings(model_type, epochs=10, train_steps=100, valid_steps=
     Returns:
         Configured TrainerSettings object
     """
+    # Get parameters from config or use defaults
+    if epochs is None:
+        epochs = CONFIG.get("training", {}).get("epochs", 10)
+    if train_steps is None:
+        train_steps = CONFIG.get("training", {}).get("train_steps", 100)
+    if valid_steps is None:
+        valid_steps = CONFIG.get("training", {}).get("valid_steps", 100)
+    
     accuracy = metrics.Accuracy()
     
     # Create log directory
     timestamp = datetime.now().strftime("%Y%m%d-%H%M")
-    log_dir = Path(f"logs/{model_type}/{timestamp}").resolve()
+    base_log_dir = CONFIG.get("logging", {}).get("log_dir", "logs")
+    log_dir = Path(f"{base_log_dir}/{model_type}/{timestamp}").resolve()
     if not log_dir.exists():
         log_dir.mkdir(parents=True)
     
     # Configure settings based on model type
     if model_type == 'cnn':
         # Settings from les2.ipynb
+        # Get report types from config or use defaults
+        report_types_str = CONFIG.get("logging", {}).get("report_types", ["TENSORBOARD", "TOML"])
+        report_types = [getattr(ReportTypes, rt) for rt in report_types_str if hasattr(ReportTypes, rt)]
+        
+        # Get early stopping parameters from config
+        early_stop_enabled = CONFIG.get("early_stopping", {}).get("enabled", True)
+        early_stop_kwargs = {}
+        if early_stop_enabled:
+            early_stop_kwargs = {
+                "save": CONFIG.get("early_stopping", {}).get("save", True),
+                "verbose": CONFIG.get("early_stopping", {}).get("verbose", True),
+                "patience": CONFIG.get("early_stopping", {}).get("patience", 5),
+            }
+        
         settings = TrainerSettings(
             epochs=epochs,
             metrics=[accuracy],
             logdir=log_dir,
             train_steps=train_steps,
             valid_steps=valid_steps,
-            reporttypes=[ReportTypes.TENSORBOARD, ReportTypes.TOML],
-            earlystop_kwargs={
-                "save": True,
-                "verbose": True,
-                "patience": 5,
-            },
+            reporttypes=report_types,
+            earlystop_kwargs=early_stop_kwargs if early_stop_enabled else None,
         )
     elif model_type in ['dnn', 'nn']:
         # Settings from les1.ipynb
+        # Get report types from config or use defaults
+        report_types_str = CONFIG.get("logging", {}).get("report_types", ["TENSORBOARD", "TOML"])
+        report_types = [getattr(ReportTypes, rt) for rt in report_types_str if hasattr(ReportTypes, rt)]
+        
         settings = TrainerSettings(
             epochs=epochs,
             metrics=[accuracy],
             logdir=log_dir,
             train_steps=train_steps,
             valid_steps=valid_steps,
-            reporttypes=[ReportTypes.TENSORBOARD, ReportTypes.TOML],
+            reporttypes=report_types,
         )
     elif model_type in ['rnn_gru', 'rnn_basic', 'gru_attention', 'rnn_attention']:
         # Settings from les3.ipynb
+        # Get report types from config or use defaults
+        report_types_str = CONFIG.get("logging", {}).get("report_types", ["TOML", "TENSORBOARD", "MLFLOW"])
+        report_types = [getattr(ReportTypes, rt) for rt in report_types_str if hasattr(ReportTypes, rt)]
+        
+        # Get early stopping parameters from config
+        early_stop_enabled = CONFIG.get("early_stopping", {}).get("enabled", True)
+        early_stop_kwargs = {}
+        if early_stop_enabled:
+            early_stop_kwargs = {
+                "save": CONFIG.get("early_stopping", {}).get("save", False),
+                "verbose": CONFIG.get("early_stopping", {}).get("verbose", True),
+                "patience": CONFIG.get("early_stopping", {}).get("patience", 5),
+            }
+        
         settings = TrainerSettings(
             epochs=epochs,
             metrics=[accuracy],
             logdir=log_dir,
             train_steps=train_steps,
             valid_steps=valid_steps,
-            reporttypes=[ReportTypes.TOML, ReportTypes.TENSORBOARD, ReportTypes.MLFLOW],
-            earlystop_kwargs={
-                "save": False,
-                "verbose": True,
-                "patience": 5,
-            }
+            reporttypes=report_types,
+            earlystop_kwargs=early_stop_kwargs if early_stop_enabled else None,
         )
     else:
         raise ValueError(f"Unknown model type: {model_type}")
@@ -247,7 +403,7 @@ def create_trainer_settings(model_type, epochs=10, train_steps=100, valid_steps=
     return settings
 
 
-def train_model(model_type, epochs=10, batch_size=32, save_model=True):
+def train_model(model_type, epochs=None, batch_size=None, save_model=None):
     """
     Train a model with optimal hyperparameters.
     
@@ -260,7 +416,13 @@ def train_model(model_type, epochs=10, batch_size=32, save_model=True):
     Returns:
         Trained model and training history
     """
-
+    # Get parameters from config or use defaults
+    if epochs is None:
+        epochs = CONFIG.get("training", {}).get("epochs", 10)
+    if batch_size is None:
+        batch_size = CONFIG.get("training", {}).get("batch_size", 32)
+    if save_model is None:
+        save_model = CONFIG.get("general", {}).get("save_model", True)
     
     # Create model
     if model_type == 'cnn':
@@ -326,26 +488,38 @@ def main():
     """
     Main function to parse arguments and train models.
     """
+
+    global CONFIG
+
+    # Load configuration
+    config = CONFIG
+    
     parser = argparse.ArgumentParser(description='Train machine learning models with optimal hyperparameters.')
+    parser.add_argument('--config', type=str, default='config.toml',
+                        help='Path to configuration file (default: config.toml)')
     parser.add_argument('--model', type=str, 
                         choices=['cnn', 'dnn', 'nn', 'rnn_gru', 'rnn_basic', 'gru_attention', 'rnn_attention'], 
                         required=True,
                         help='Type of model to train (cnn, dnn, nn, rnn_gru, rnn_basic, gru_attention, or rnn_attention)')
-    parser.add_argument('--epochs', type=int, default=10,
-                        help='Number of training epochs (default: 10)')
-    parser.add_argument('--batch-size', type=int, default=32,
-                        help='Batch size for data loading (default: 32)')
+    parser.add_argument('--epochs', type=int,
+                        help=f'Number of training epochs (default: {config.get("training", {}).get("epochs", 10)})')
+    parser.add_argument('--batch-size', type=int,
+                        help=f'Batch size for data loading (default: {config.get("training", {}).get("batch_size", 32)})')
     parser.add_argument('--no-save', action='store_true',
                         help='Do not save the trained model')
     
     args = parser.parse_args()
+    
+    # If a different config file is specified, reload the configuration
+    if args.config != 'config.toml':
+        CONFIG = load_config(args.config)
     
     # Train model
     train_model(
         model_type=args.model,
         epochs=args.epochs,
         batch_size=args.batch_size,
-        save_model=not args.no_save
+        save_model=not args.no_save if args.no_save else None
     )
 
 

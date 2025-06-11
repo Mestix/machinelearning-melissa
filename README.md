@@ -14,8 +14,52 @@ This repository contains implementations of various machine learning models (NN,
 │   └── RNN.py             # Recurrent Neural Network implementations
 ├── notebooks/             # Jupyter notebooks for experimentation
 ├── main.py                # Main script for training models
+├── config.toml            # Configuration file for customizing parameters
+├── run_all_networks.sh    # Script to run all network types for testing
 └── README.md              # This file
 ```
+
+## Configuration
+
+The project uses a `config.toml` file to customize all parameters for models, datasets, and training settings. This allows for easy experimentation without modifying the code.
+
+### Configuration Structure
+
+The configuration file is organized into sections:
+
+```toml
+[general]
+# General settings like save_model
+
+[training]
+# Training parameters like epochs, batch_size, etc.
+
+[early_stopping]
+# Early stopping parameters
+
+[logging]
+# Logging settings
+
+[models.cnn]
+# CNN model parameters
+
+[models.nn]
+# Neural Network parameters
+
+[models.dnn]
+# Deep Neural Network parameters
+
+[models.rnn]
+# RNN model parameters
+
+[datasets.fashion]
+# Fashion MNIST dataset parameters
+
+[datasets.gestures]
+# Gestures dataset parameters
+```
+
+You can modify any parameter in the config file to customize the behavior of the models and training process. Command-line arguments will override the values in the config file.
 
 ## Models and Optimal Hyperparameters
 
@@ -88,13 +132,16 @@ Four RNN model variants are implemented for sequence classification tasks, parti
 
 ## Usage
 
-The `main.py` script provides a unified interface for training the different model types with their optimal hyperparameters.
+The `main.py` script provides a unified interface for training the different model types with their optimal hyperparameters. All parameters can be customized either through the `config.toml` file or via command-line arguments.
+
+Run `bash run_all_networks.sh` to verify all networks with minimal training for testing purposes.
 
 ### Command-line Arguments
 
+- `--config`: Path to configuration file (default: config.toml)
 - `--model`: Type of model to train (cnn, dnn, nn, rnn_gru, rnn_basic, gru_attention, or rnn_attention)
-- `--epochs`: Number of training epochs (default: model-specific)
-- `--batch-size`: Batch size for data loading (default: 32)
+- `--epochs`: Number of training epochs (default: from config.toml)
+- `--batch-size`: Batch size for data loading (default: from config.toml)
 - `--no-save`: Do not save the trained model
 
 ### Examples
