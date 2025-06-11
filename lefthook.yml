@@ -2,7 +2,7 @@ pre-commit:
   parallel: true
   commands:
     notebook-clean:
-      run: nbstripout /notebooks/*ipynb
+      run: nbstripout notebooks/*ipynb
     black:
       run: black networks/ dev/ main.py
     ruff:
